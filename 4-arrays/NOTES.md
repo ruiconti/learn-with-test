@@ -27,6 +27,8 @@ b := [][]int{{0, 1}, {1, 0}}
 
 ### Slicing
 
+Ref: https://blog.golang.org/slices-intro
+
 Can also be formed by "slicing" an existing slice or array. It is done by 
 specifying an half-open range with two indices.
 
@@ -44,7 +46,9 @@ Therefore, it makes slice operations as efficient as manipulating array indices.
 
 ### Capacity
 
-...
+To increase the capacity of a given slice, in Go, you must create a new one with greater capacity and copy the contents of given slice to newer slice.
+
+Go abstracts this recipe with `append(slice, newData)`. That is a clear sign of how flexible the language is: It's up to the programmer to choose on which level of abstraction you wish to work on.
 
 ## Go syntax
 
