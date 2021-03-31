@@ -1,5 +1,7 @@
 # Notes
 
+Very relevant reference: https://research.swtch.com/interfaces
+
 ## Methods
 
 Ref: https://golang.org/ref/spec#Method_declarations
