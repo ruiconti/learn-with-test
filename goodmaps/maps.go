@@ -58,3 +58,6 @@ func (d Dictionary) Delete(word string) error {
 	}
 	return nil
 }
+
+// It made me wonder: How could we generalize this? Or in Gopher way this is
+// not something to pursue?
