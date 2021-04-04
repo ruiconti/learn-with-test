@@ -34,6 +34,15 @@ Channels are a communication facility. Again, another analogy to UNIX. They're p
 
 Channels also resembles how Python's coroutines work in a way they send and receive values in an asynchronous fashion.
 
+```go
+ch := make(chan string)
+
+ch <- "BUFFERING..."
+read := <- ch
+fmt.Println(read)   // BUFFERING...
+another_read <- ch  // Blocks until something is written on ch
+```
+
 - They always have a type to signal which interface is being buffered (and ofc its size): `c chan int`
 - It is used `c <- 4` to **send** data
 - And it is used `b := <- c` to read data
