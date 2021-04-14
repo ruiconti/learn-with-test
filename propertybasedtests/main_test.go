@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"testing"
+	"testing/quick"
+)
 
 // We are building Roman Numeral Kata
 // http://codingdojo.org/kata/RomanNumerals/
@@ -12,7 +15,7 @@ func assertString(t testing.TB, got, want string) {
 	}
 }
 
-func assertInt(t testing.TB, got, want int) {
+func assertInt(t testing.TB, got, want uint16) {
 	t.Helper()
 	if got != want {
 		t.Errorf("got '%d', want '%d'", got, want)
@@ -21,74 +24,96 @@ func assertInt(t testing.TB, got, want int) {
 
 func TestRomanNumerals(t *testing.T) {
 	cases := []struct {
-		Arabic int
-		Roman  string
+		ArabicDigit uint16
+		Roman       string
 	}{
-		{Arabic: 1, Roman: "I"},
-		{Arabic: 2, Roman: "II"},
-		{Arabic: 4, Roman: "IV"},
-		{Arabic: 5, Roman: "V"},
-		{Arabic: 6, Roman: "VI"},
-		{Arabic: 8, Roman: "VIII"},
-		{Arabic: 9, Roman: "IX"},
-		{Arabic: 10, Roman: "X"},
-		{Arabic: 14, Roman: "XIV"},
-		{Arabic: 19, Roman: "XIX"},
-		{Arabic: 34, Roman: "XXXIV"},
-		{Arabic: 40, Roman: "XL"},
-		{Arabic: 47, Roman: "XLVII"},
-		{Arabic: 49, Roman: "XLIX"},
-		{Arabic: 50, Roman: "L"},
-		{Arabic: 90, Roman: "XC"},
-		{Arabic: 400, Roman: "CD"},
-		{Arabic: 500, Roman: "D"},
-		{Arabic: 793, Roman: "DCCXCIII"},
-		{Arabic: 900, Roman: "CM"},
-		{Arabic: 1000, Roman: "M"},
-		{Arabic: 1337, Roman: "MCCCXXXVII"},
-		{Arabic: 1400, Roman: "MCD"},
-		{Arabic: 1992, Roman: "MCMXCII"},
-		{Arabic: 3999, Roman: "MMMCMXCIX"},
+		{ArabicDigit: 1, Roman: "I"},
+		{ArabicDigit: 2, Roman: "II"},
+		{ArabicDigit: 4, Roman: "IV"},
+		{ArabicDigit: 5, Roman: "V"},
+		{ArabicDigit: 6, Roman: "VI"},
+		{ArabicDigit: 8, Roman: "VIII"},
+		{ArabicDigit: 9, Roman: "IX"},
+		{ArabicDigit: 10, Roman: "X"},
+		{ArabicDigit: 14, Roman: "XIV"},
+		{ArabicDigit: 19, Roman: "XIX"},
+		{ArabicDigit: 34, Roman: "XXXIV"},
+		{ArabicDigit: 40, Roman: "XL"},
+		{ArabicDigit: 47, Roman: "XLVII"},
+		{ArabicDigit: 49, Roman: "XLIX"},
+		{ArabicDigit: 50, Roman: "L"},
+		{ArabicDigit: 90, Roman: "XC"},
+		{ArabicDigit: 400, Roman: "CD"},
+		{ArabicDigit: 500, Roman: "D"},
+		{ArabicDigit: 793, Roman: "DCCXCIII"},
+		{ArabicDigit: 900, Roman: "CM"},
+		{ArabicDigit: 1000, Roman: "M"},
+		{ArabicDigit: 1337, Roman: "MCCCXXXVII"},
+		{ArabicDigit: 1400, Roman: "MCD"},
+		{ArabicDigit: 1992, Roman: "MCMXCII"},
+		{ArabicDigit: 3999, Roman: "MMMCMXCIX"},
 	}
 	for _, test := range cases {
-		got := ConvertToRoman(test.Arabic)
+		arabic, err := NewArabic(test.ArabicDigit)
+
+		if err != nil {
+			t.Errorf("arabic digit constraints broken")
+		}
+
+		got := ConvertToRoman(*arabic)
 		assertString(t, got, test.Roman)
 	}
 }
 
-func TestArabicNumerals(t *testing.T) {
+func TestArabicDigitNumerals(t *testing.T) {
 	cases := []struct {
-		Arabic int
-		Roman  string
+		ArabicDigit uint16
+		Roman       string
 	}{
-		{Arabic: 1, Roman: "I"},
-		{Arabic: 2, Roman: "II"},
-		{Arabic: 4, Roman: "IV"},
-		{Arabic: 5, Roman: "V"},
-		{Arabic: 6, Roman: "VI"},
-		{Arabic: 8, Roman: "VIII"},
-		{Arabic: 9, Roman: "IX"},
-		{Arabic: 10, Roman: "X"},
-		{Arabic: 14, Roman: "XIV"},
-		{Arabic: 19, Roman: "XIX"},
-		{Arabic: 34, Roman: "XXXIV"},
-		{Arabic: 40, Roman: "XL"},
-		{Arabic: 47, Roman: "XLVII"},
-		{Arabic: 49, Roman: "XLIX"},
-		{Arabic: 50, Roman: "L"},
-		{Arabic: 90, Roman: "XC"},
-		{Arabic: 400, Roman: "CD"},
-		{Arabic: 500, Roman: "D"},
-		{Arabic: 793, Roman: "DCCXCIII"},
-		{Arabic: 900, Roman: "CM"},
-		{Arabic: 1000, Roman: "M"},
-		{Arabic: 1337, Roman: "MCCCXXXVII"},
-		{Arabic: 1400, Roman: "MCD"},
-		{Arabic: 1992, Roman: "MCMXCII"},
-		{Arabic: 3999, Roman: "MMMCMXCIX"},
+		{ArabicDigit: 1, Roman: "I"},
+		{ArabicDigit: 2, Roman: "II"},
+		{ArabicDigit: 4, Roman: "IV"},
+		{ArabicDigit: 5, Roman: "V"},
+		{ArabicDigit: 6, Roman: "VI"},
+		{ArabicDigit: 8, Roman: "VIII"},
+		{ArabicDigit: 9, Roman: "IX"},
+		{ArabicDigit: 10, Roman: "X"},
+		{ArabicDigit: 14, Roman: "XIV"},
+		{ArabicDigit: 19, Roman: "XIX"},
+		{ArabicDigit: 34, Roman: "XXXIV"},
+		{ArabicDigit: 40, Roman: "XL"},
+		{ArabicDigit: 47, Roman: "XLVII"},
+		{ArabicDigit: 49, Roman: "XLIX"},
+		{ArabicDigit: 50, Roman: "L"},
+		{ArabicDigit: 90, Roman: "XC"},
+		{ArabicDigit: 400, Roman: "CD"},
+		{ArabicDigit: 500, Roman: "D"},
+		{ArabicDigit: 793, Roman: "DCCXCIII"},
+		{ArabicDigit: 900, Roman: "CM"},
+		{ArabicDigit: 1000, Roman: "M"},
+		{ArabicDigit: 1337, Roman: "MCCCXXXVII"},
+		{ArabicDigit: 1400, Roman: "MCD"},
+		{ArabicDigit: 1992, Roman: "MCMXCII"},
+		{ArabicDigit: 3999, Roman: "MMMCMXCIX"},
 	}
 	for _, test := range cases {
 		got := ConvertToArabic(test.Roman)
-		assertInt(t, got, test.Arabic)
+		assertInt(t, got.Val(), test.ArabicDigit)
+	}
+}
+
+func TestPropertiesOfConversion(t *testing.T) {
+	assertion := func(seed uint16) bool {
+		arabic, err := NewArabic(seed)
+		if err == nil {
+			roman := ConvertToRoman(*arabic)
+			fromRoman := ConvertToArabic(roman)
+			return fromRoman == *arabic
+		}
+		return true
+	}
+
+	if err := quick.Check(assertion, nil); err != nil {
+		t.Error("failed checks", err)
 	}
 }

@@ -1,15 +1,33 @@
 package main
 
-import "strings"
+import (
+	"errors"
+	"strings"
+)
+
+type Arabic struct {
+	value uint16
+}
+
+func (a *Arabic) Val() uint16 {
+	return a.value
+}
+
+func NewArabic(value uint16) (*Arabic, error) {
+	if value > 3999 {
+		return nil, errors.New("Invalid value. Valid range: 1 <= v < 3999.")
+	}
+	return &Arabic{value: value}, nil
+}
 
 type RomanNumeral struct {
-	Value  int
+	Value  uint16
 	Symbol string
 }
 
 type RomanNumerals []RomanNumeral
 
-func (r RomanNumerals) ValueOf(symbols ...byte) int {
+func (r RomanNumerals) ValueOf(symbols ...byte) uint16 {
 	symbol := string(symbols)
 	for _, s := range r {
 		if s.Symbol == symbol {
@@ -45,17 +63,14 @@ var romanNumerals = RomanNumerals{
 	{1, "I"},
 }
 
-func ConvertToRoman(digit int) string {
+func ConvertToRoman(digit Arabic) string {
 	var roman strings.Builder
-
-	if digit == 4 {
-		return "IV"
-	}
+	total := digit.Val()
 
 	for _, numeral := range romanNumerals {
-		for digit >= numeral.Value {
+		for total >= numeral.Value {
 			roman.WriteString(numeral.Symbol)
-			digit -= numeral.Value
+			total -= numeral.Value
 		}
 	}
 	return roman.String()
@@ -65,36 +80,15 @@ func isSubtractiveSymbol(symbol uint8) bool {
 	return symbol == 'I' || symbol == 'X' || symbol == 'C'
 }
 
-// func ConvertToArabic(roman string) (arabic int) {
-// 	for i := 0; i < len(roman); i++ {
-// 		// When we index strings, we get bytes.
-// 		symbol := roman[i]
-//
-// 		if couldBeSubtractive(i, symbol, roman) {
-// 			nextSymbol := roman[i+1]
-// 			value, found := romanNumerals.ValueOf(symbol, nextSymbol)
-//
-// 			if found {
-// 				arabic += value
-// 				i++
-// 			} else {
-// 				// it's a regular and lonely I, or X or C
-// 				value, _ := romanNumerals.ValueOf(symbol)
-// 				arabic += value
-// 			}
-// 		} else {
-// 			value, _ := romanNumerals.ValueOf(symbol)
-// 			arabic += value
-// 		}
-// 	}
-// 	return
-// }
-func ConvertToArabic(roman string) (arabic int) {
+func ConvertToArabic(roman string) Arabic {
+	var arabic uint16
+
 	for _, symbol := range windowedRoman(roman) {
 		arabic += romanNumerals.ValueOf(symbol...)
 		// TODO: Understand how these ... work
 	}
-	return
+	nArabic, _ := NewArabic(arabic)
+	return *nArabic
 }
 
 // Iterates over a string of romans and neatly deals with subtractive symbols:
@@ -111,32 +105,7 @@ func windowedRoman(roman string) (symbols [][]byte) {
 			i++
 		} else {
 			symbols = append(symbols, []byte{byte(symbol)})
-			// TODO: study how these instantiations work
-			// raw bytes datatypes still a mistery
 		}
 	}
 	return
 }
-
-// func OldConvert(digit int) string {
-// 	for digit > 0 {
-// 		switch {
-// 		case digit > 9:
-// 			roman.WriteString("X")
-// 			digit -= 10
-// 		case digit > 8:
-// 			roman.WriteString("IX")
-// 			digit -= 9
-// 		case digit > 4:
-// 			roman.WriteString("V")
-// 			digit -= 5
-// 		case digit > 3:
-// 			roman.WriteString("IV")
-// 			digit -= 4
-// 		default:
-// 			roman.WriteString("I")
-// 			digit--
-// 		}
-// 	}
-// 	return roman.String()
-// }
