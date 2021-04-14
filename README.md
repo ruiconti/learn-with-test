@@ -1,4 +1,4 @@
-# Learn test with go
+# Learn Go through TDD 
 
 Reference: https://quii.gitbook.io/learn-go-with-tests/
 
